@@ -144,7 +144,10 @@ from horta.experiments import candidates, configuration, collect_runs, evaluate,
 
 config = configuration()
 rows = [{'algorithm': a, 'config_id': c, **p} for (a,c), p in candidates(config).items()]
-display(pd.DataFrame(rows).fillna('—'))
+display(pd.DataFrame(rows)[['algorithm','config_id','learning_rate','gamma']])
+for algorithm, specification in config['algorithms'].items():
+    print(algorithm, '— demais parâmetros da base:')
+    print(json.dumps(specification['base'], indent=2))
 print('Sementes:', json.dumps(config['seeds']))
 print('Orçamentos:', config['budgets'])
 print('Versões:', json.loads(next(Path('results/pilot').glob('*/run.json')).read_text(encoding='utf-8'))['dependencies'])""")
@@ -203,7 +206,22 @@ else:
         md("Seleção feita exclusivamente pela validação: " + "; ".join(f"**{a}: `{c}`**" for a,c in winners.items()) + ". As demais configurações permanecem nas tabelas para justificar a escolha. O vencedor na validação não precisa obter o mesmo desempenho após novo treinamento com sementes diferentes.")
         md("### 4.2 Teste final e referências\n\nResultados em episódios reservados, após retreinamento das configurações selecionadas. As colunas de desvio dos métodos de RL medem dispersão entre cinco treinamentos; nas referências são ausentes.")
         code("""summary = pd.read_csv('results/final_summary.csv')
-display(summary.round(4))
+def mean_sd(row, metric, precision=2, percent=False):
+    factor = 100 if percent else 1
+    mean, sd = row[metric+'_mean'] * factor, row[metric+'_std'] * factor
+    suffix = '%' if percent else ''
+    if pd.isna(sd):
+        return f'{mean:.{precision}f}{suffix}'
+    return f'{mean:.{precision}f} ± {sd:.{precision}f}{suffix}'
+display(pd.DataFrame([{
+    'Algoritmo': row.algorithm, 'Configuração': row.config_id,
+    'Retorno': mean_sd(row,'episode_return'),
+    'Sobrevivência': mean_sd(row,'survival_fraction',1,True),
+    'Saúde': mean_sd(row,'final_mean_health',3),
+    'Água': mean_sd(row,'water_used'),
+    'Sucesso': mean_sd(row,'success',1,True),
+} for _,row in summary.iterrows()]))
+display(summary[['algorithm','training_seeds','train_seconds_mean','train_seconds_std']].round(2))
 display(Image(filename='reports/figures/comparacao.png'))
 display(Image(filename='reports/figures/agua_saude.png'))
 display(Image(filename='reports/figures/aprendizado.png'))""")
@@ -266,6 +284,35 @@ def main():
     html, _ = HTMLExporter().from_notebook_node(nb)
     (ROOT / "reports").mkdir(exist_ok=True)
     (ROOT / "reports/relatorio_horta.html").write_text(html, encoding="utf-8")
+    count_tuning, count_final = len(collect_runs("tuning")), len(collect_runs("final"))
+    delivery = json.loads((ROOT / "configs/entrega.json").read_text(encoding="utf-8"))
+    checklist = f"""# Checklist do trabalho
+
+- [x] Integrantes: {', '.join(delivery['integrantes'])}; dupla considerada aprovada conforme instrução do usuário.
+- [x] Proposta e algoritmos considerados aprovados conforme instrução do usuário.
+- [x] MDP documentado com estados, ações, transições, recompensa e horizonte.
+- [x] Ambiente próprio implementado no Gymnasium.
+- [x] Renderização rgb_array, human e ansi.
+- [x] API do Gymnasium/SB3 e seis verificações do ambiente.
+- [x] DQN, PPO e A2C integrados; piloto dos três concluído.
+- [{'x' if count_tuning == 36 else ' '}] Busca de hiperparâmetros: {count_tuning}/36 treinamentos concluídos, 12 configurações e 3 sementes por configuração.
+- [{'x' if count_final == 15 else ' '}] Retreinamento final: {count_final}/15 treinamentos concluídos, 5 sementes por algoritmo.
+- [{'x' if (ROOT / 'results/heuristic.csv').exists() else ' '}] Referências aleatória e heurística avaliadas em teste.
+- [{'x' if (ROOT / 'results/final_summary.csv').exists() else ' '}] Resultados, gráficos e comparação de todas as configurações.
+- [x] Notebook com texto e código integrados, executado sem erros.
+- [x] Notebook convertido para relatório HTML.
+- [{'x' if (ROOT / 'results/final_summary.csv').exists() else ' '}] Discussão de resultados e conclusões preenchidas com dados reais.
+- [{'x' if (ROOT / 'artifacts/models/manifest.json').exists() else ' '}] Modelos reproduzíveis e execução ilustrativa.
+- [x] Roteiro de apresentação preparado.
+- [ ] Gravar apresentação de até 3 minutos com fala de todos os integrantes.
+- [{'x' if delivery['youtube'] else ' '}] Publicar no YouTube e incluir link no relatório.
+- [{'x' if '[preencher]' not in delivery['professor'] else ' '}] Preencher nome do professor.
+- [{'x' if '[preencher]' not in delivery['prazo'] else ' '}] Confirmar data de entrega e entregar no prazo.
+- [{'x' if delivery['divulgacao'] else ' '}] Opcional: divulgar em rede social e incluir link.
+
+Editar identificação e links em `configs/entrega.json` e executar `python scripts/build_report.py` para atualizar os documentos.
+"""
+    (ROOT / "CHECKLIST.md").write_text(checklist, encoding="utf-8")
     if (ROOT / "results/final_summary.csv").exists():
         import pandas as pd
         summary = pd.read_csv(ROOT / "results/final_summary.csv")
@@ -276,7 +323,9 @@ def main():
         ranking = "; ".join(f"{row.algorithm}: {row.episode_return_mean:.2f} ± {row.episode_return_std:.2f}" for _, row in rl.iterrows())
         script = f"""# Apresentação — roteiro com resultados reais
 
-Meta: 2min50s, com 10 segundos de margem. Adaptar nomes completos e ensaiar com cronômetro. Todos os integrantes devem falar. A divisão abaixo considera Nicolas e Marcelo; se houver outros integrantes, redistribuir os trechos.
+Integrantes: {', '.join(json.loads((ROOT / 'configs/entrega.json').read_text(encoding='utf-8'))['integrantes'])}.
+
+Meta: 2min50s, com 10 segundos de margem. Ensaiar com cronômetro. Todos os integrantes devem falar. A divisão abaixo considera Nicolas e Marcelo; se houver outros integrantes, redistribuir os trechos.
 
 ## 0:00–1:10 — Nicolas: problema e MDP
 
