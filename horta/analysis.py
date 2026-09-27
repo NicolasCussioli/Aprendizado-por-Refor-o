@@ -1,5 +1,7 @@
 """Agrega resultados reais, gera figuras e grava execução ilustrativa."""
 import json
+import hashlib
+import shutil
 
 import imageio.v2 as imageio
 import matplotlib
@@ -12,6 +14,7 @@ from .env import HortaEnv
 from .experiments import ALGORITHMS, METRICS, ROOT, collect_runs, configuration, select_winners
 
 COLORS = {"DQN": "#2976bb", "PPO": "#228657", "A2C": "#ca6a28", "random": "#777777", "heuristic": "#77549b"}
+LABELS = {"DQN": "DQN", "PPO": "PPO", "A2C": "A2C", "random": "Aleatória", "heuristic": "Heurística"}
 
 
 def summarize():
@@ -49,8 +52,8 @@ def make_figures(summary, winners):
     output.mkdir(parents=True, exist_ok=True)
     plt.rcParams.update({"font.size": 11, "axes.spines.top": False, "axes.spines.right": False})
     fig, axes = plt.subplots(1, 2, figsize=(11, 4.2))
-    labels = summary.algorithm.tolist()
-    colors = [COLORS[a] for a in labels]
+    labels = [LABELS[a] for a in summary.algorithm]
+    colors = [COLORS[a] for a in summary.algorithm]
     for ax, metric, title in zip(axes, ["episode_return", "final_mean_health"], ["Retorno no teste", "Saúde final média"]):
         ax.bar(labels, summary[metric + "_mean"], color=colors, alpha=0.9,
                yerr=summary[metric + "_std"].fillna(0), capsize=5)
@@ -88,7 +91,7 @@ def make_figures(summary, winners):
     fig, ax = plt.subplots(figsize=(7, 4.5))
     for _, row in summary.iterrows():
         ax.scatter(row.water_used_mean, row.final_mean_health_mean, color=COLORS[row.algorithm], s=75)
-        ax.annotate(row.algorithm, (row.water_used_mean, row.final_mean_health_mean), xytext=(5, 6), textcoords="offset points")
+        ax.annotate(LABELS[row.algorithm], (row.water_used_mean, row.final_mean_health_mean), xytext=(5, 6), textcoords="offset points")
     ax.set(xlabel="Água aplicada por episódio (unidades sintéticas)", ylabel="Saúde final média", ylim=(0, 1.07),
            title="Consumo e saúde devem ser interpretados em conjunto")
     ax.grid(alpha=0.2)
@@ -126,6 +129,18 @@ def main():
     summary, winners = summarize()
     make_figures(summary, winners)
     record_demo(winners)
+    artifacts = ROOT / "artifacts/models"
+    artifacts.mkdir(parents=True, exist_ok=True)
+    manifest = {}
+    for algo, config_id in winners.items():
+        source = ROOT / f"models/final/{algo}__{config_id}__101.zip"
+        destination = artifacts / f"{algo}_seed101.zip"
+        shutil.copy2(source, destination)
+        manifest[algo] = {"config_id": config_id, "training_seed": 101,
+            "selection": "Primeira semente fixada, não a melhor execução.",
+            "sha256": hashlib.sha256(destination.read_bytes()).hexdigest(),
+            "run_record": f"results/final/{algo}__{config_id}__101/run.json"}
+    (artifacts / "manifest.json").write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
     print(summary.to_string(index=False))
 
 

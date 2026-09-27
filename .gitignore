@@ -10,6 +10,6 @@ models/
 logs/
 videos/
 *.zip
+!artifacts/models/*.zip
 !requirements*.txt
-reports/*.html
 *.tmp

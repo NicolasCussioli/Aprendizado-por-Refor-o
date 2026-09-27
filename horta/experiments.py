@@ -8,6 +8,7 @@ import hashlib
 import importlib.metadata
 import json
 import platform
+import shutil
 import time
 from pathlib import Path
 
@@ -92,6 +93,11 @@ def run_trial(stage, algo, config_id, seed, params, config):
         if old.get("status") == "completed":
             print(f"Já concluído: {stage}/{trial_id}", flush=True)
             return old
+        archive = path / "retries" / f"attempt_{len(list((path / 'retries').glob('attempt_*'))) + 1}"
+        archive.mkdir(parents=True, exist_ok=True)
+        for artifact in path.iterdir():
+            if artifact.is_file() and artifact.suffix != ".tmp":
+                shutil.copy2(artifact, archive / artifact.name)
     meta = {"stage": stage, "algorithm": algo, "config_id": config_id, "training_seed": seed,
             "status": "running", "parameters_requested": params, "signature": signature,
             "environment_version": HortaEnv.VERSION, "environment_sha256": source_hash,
@@ -141,20 +147,23 @@ def collect_runs(stage):
     return pd.DataFrame(rows)
 
 
-def select_winners(config):
+def select_winners(config, algorithm=None):
     runs = collect_runs("tuning")
-    expected = {(a, c, s) for a, c in candidates(config) for s in config["seeds"]["tuning"]}
+    if algorithm and not runs.empty:
+        runs = runs[runs.algorithm == algorithm]
+    expected = {(a, c, s) for a, c in candidates(config) for s in config["seeds"]["tuning"] if algorithm is None or a == algorithm}
     actual = set(runs[["algorithm", "config_id", "training_seed"]].itertuples(index=False, name=None)) if not runs.empty else set()
     if actual != expected:
         raise RuntimeError(f"Busca incompleta: {len(actual)}/{len(expected)} execuções. Não iniciar teste.")
     summary = runs.groupby(["algorithm", "config_id"])[METRICS + ["train_seconds"]].agg(["mean", "std"])
-    summary.to_csv(ROOT / "results/tuning_summary.csv")
+    suffix = f"_{algorithm}" if algorithm else ""
+    summary.to_csv(ROOT / f"results/tuning_summary{suffix}.csv")
     winner = {}
-    for algo in ALGORITHMS:
+    for algo in ([algorithm] if algorithm else ALGORITHMS):
         ordered = runs[runs.algorithm == algo].groupby("config_id")[["episode_return", "water_used"]].mean()
         ordered = ordered.sort_values(["episode_return", "water_used"], ascending=[False, True])
         winner[algo] = str(ordered.index[0])
-    atomic_json(ROOT / "results/winners.json", winner)
+    atomic_json(ROOT / f"results/winners{suffix}.json", winner)
     return winner
 
 

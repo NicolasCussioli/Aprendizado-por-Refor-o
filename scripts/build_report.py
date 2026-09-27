@@ -26,15 +26,18 @@ def build():
 
     final_path = ROOT / "results/final_summary.csv"
     finished = final_path.exists()
-    md("""# Irrigação inteligente de uma horta comunitária
+    delivery = json.loads((ROOT / "configs/entrega.json").read_text(encoding="utf-8"))
+    youtube = f"[Apresentação no YouTube]({delivery['youtube']})" if delivery["youtube"] else "[incluir link após gravação com a fala de todos os integrantes]"
+    social = f"[Divulgação]({delivery['divulgacao']})" if delivery["divulgacao"] else "[opcional]"
+    md(f"""# Irrigação inteligente de uma horta comunitária
 
 **Trabalho de Aprendizado por Reforço — notebook e relatório**
 
-Integrantes: Nicolas [sobrenome completo] e Marcelo [sobrenome completo]; preencher demais integrantes, se houver. Professor e prazo: [preencher].
+Integrantes: {', '.join(delivery['integrantes'])}. Professor: {delivery['professor']}. Prazo: {delivery['prazo']}.
 
 Em 26/09/2026, o usuário instruiu considerar tema, algoritmos e grupo aprovados. Essa informação autoriza a continuidade do projeto; a resposta original do professor não foi anexada.
 
-**Apresentação no YouTube:** [incluir link após gravação com a fala de todos os integrantes]. Divulgação em rede social: [opcional].
+**Apresentação no YouTube:** {youtube}. Divulgação em rede social: {social}.
 
 Este relatório contém código executável e dados reais. O treinamento é executado pelo módulo de experimentos, com comando explícito, e as células seguintes carregam seus registros sem repetir os treinamentos.""")
     md("""## 1. Introdução
@@ -180,7 +183,9 @@ else:
 
 No diagnóstico inicial, DQN e PPO concluíram; o registro do A2C falhou porque sua inicialização modificou `policy_kwargs`, incluindo uma classe de otimizador que não era serializável em JSON. O runner foi corrigido para entregar uma cópia profunda dos parâmetros ao algoritmo. Os arquivos dessa tentativa foram preservados em `results/pilot_diagnostico`, separados das comparações. O piloto dos três métodos foi refeito. A fonte da renderização também foi corrigida para suportar acentos.
 
-O piloto verificado abaixo não serve como resultado final nem foi usado para escolher hiperparâmetros. Todas as configurações planejadas da busca serão apresentadas, inclusive as de baixo desempenho. Versões, sementes, código, orçamento, duração e status ficam em cada `run.json`; retornos de treino ficam em `monitor.csv` e avaliação por episódio em `evaluation.csv`. Modelos são artefatos locais regeneráveis e não foram enviados ao GitHub. O lock de dependências registra o ambiente de execução.""")
+O piloto verificado abaixo não serve como resultado final nem foi usado para escolher hiperparâmetros. Todas as configurações planejadas da busca serão apresentadas, inclusive as de baixo desempenho. Versões, sementes, código, orçamento, duração e status ficam em cada `run.json`; retornos de treino ficam em `monitor.csv` e avaliação por episódio em `evaluation.csv`. Um modelo final de cada algoritmo, sempre da semente 101 fixada antes da comparação, acompanha o repositório em `artifacts/models/`; os demais são artefatos locais regeneráveis. O lock de dependências registra o ambiente de execução.
+
+Na execução paralela, as sementes finais de um algoritmo são agendadas assim que suas 12 tentativas de busca terminam. A seleção de cada algoritmo é independente da dos outros e permanece restrita à validação; candidatos e orçamentos foram fixados antes de observar o teste. São usados no máximo cinco processos finais simultâneos, além dos processos de busca ainda ativos. O protocolo estatístico não depende da ordem de execução.""")
     code("display(collect_runs('pilot').round(4))")
 
     md("## 4. Resultados\n\n### 4.1 Busca e escolha de configurações\n\nA tabela apresenta as tentativas efetivamente concluídas. Na versão final, cada configuração terá três treinamentos; uma busca incompleta não permite selecionar vencedores.")
@@ -261,6 +266,56 @@ def main():
     html, _ = HTMLExporter().from_notebook_node(nb)
     (ROOT / "reports").mkdir(exist_ok=True)
     (ROOT / "reports/relatorio_horta.html").write_text(html, encoding="utf-8")
+    if (ROOT / "results/final_summary.csv").exists():
+        import pandas as pd
+        summary = pd.read_csv(ROOT / "results/final_summary.csv")
+        rl = summary[summary.training_seeds > 0].sort_values("episode_return_mean", ascending=False)
+        best = rl.iloc[0]
+        heuristic = summary[summary.algorithm == "heuristic"].iloc[0]
+        random = summary[summary.algorithm == "random"].iloc[0]
+        ranking = "; ".join(f"{row.algorithm}: {row.episode_return_mean:.2f} ± {row.episode_return_std:.2f}" for _, row in rl.iterrows())
+        script = f"""# Apresentação — roteiro com resultados reais
+
+Meta: 2min50s, com 10 segundos de margem. Adaptar nomes completos e ensaiar com cronômetro. Todos os integrantes devem falar. A divisão abaixo considera Nicolas e Marcelo; se houver outros integrantes, redistribuir os trechos.
+
+## 0:00–1:10 — Nicolas: problema e MDP
+
+Olá! Somos Nicolas e Marcelo. Nosso trabalho estuda a irrigação de uma horta comunitária usando aprendizado por reforço. O desafio é manter quatro canteiros saudáveis sem gastar água desnecessariamente.
+
+Criamos um ambiente no Gymnasium. O agente observa a umidade e a saúde de cada canteiro, a água disponível, o clima e o tempo restante. Em cada turno, ele pode irrigar um canteiro, reabastecer o reservatório ou esperar.
+
+O clima muda de forma probabilística. A chuva aumenta a umidade, enquanto evaporação e drenagem reduzem a água no solo. Cada canteiro tem uma faixa ideal diferente. Tanto a seca como o excesso de água prejudicam sua saúde.
+
+A recompensa favorece plantas saudáveis e penaliza o uso de água, reabastecimentos e mortes. Cada episódio dura até sessenta turnos. Incluímos o tempo no estado porque ele influencia as decisões. As regras são uma simulação didática, não um modelo agronômico validado.
+
+**Visual:** renderização da horta e uma lista curta de estado, ações e recompensa.
+
+## 1:10–2:30 — Marcelo: experimentos e resultados
+
+Comparamos DQN, PPO e A2C. Testamos quatro configurações por algoritmo, cada uma com três sementes de treinamento. Escolhemos a melhor pela média dos resultados de validação.
+
+Depois, treinamos novamente as configurações escolhidas com cinco sementes novas. Cada modelo foi avaliado em cem episódios separados, sem continuar aprendendo. Também comparamos com ações aleatórias e uma regra simples que irriga o canteiro com maior necessidade.
+
+Entre os algoritmos de aprendizado, {best.algorithm} teve o maior retorno médio: aproximadamente {best.episode_return_mean:.1f}, com desvio de {best.episode_return_std:.1f} entre treinamentos. Seu sucesso médio foi de {100 * best.success_mean:.1f} por cento. Sucesso significa terminar os sessenta turnos com todas as plantas vivas e saúde média de pelo menos cinquenta por cento.
+
+A heurística teve retorno {heuristic.episode_return_mean:.1f}, e a política aleatória, {random.episode_return_mean:.1f}. O gráfico mostra por que é importante comparar várias sementes e olhar também saúde e água: gastar pouco pode significar simplesmente deixar plantas morrerem.
+
+**Visual:** gráfico `reports/figures/comparacao.png`, mais uma execução curta do MP4 local. Valores completos para consultar: {ranking}.
+
+## 2:30–2:50 — conclusão dividida entre integrantes
+
+**Nicolas:** Conseguimos implementar o MDP e comparar três algoritmos com parâmetros e avaliações registrados.
+
+**Marcelo:** Os resultados valem para este simulador. Como próximos passos, podemos usar sensores com ruído, outras plantas e maior busca de hiperparâmetros.
+
+## Publicação
+
+- Gravar fala real de todos os integrantes e conferir duração máxima de três minutos.
+- Publicar no YouTube; o MP4 ilustrativo não substitui a apresentação.
+- Incluir o link em `configs/entrega.json` e gerar o relatório novamente.
+- Divulgação em rede social é opcional; inserir o link se realizada.
+"""
+        (ROOT / "apresentacao/roteiro.md").write_text(script, encoding="utf-8")
     print("Notebook executado e relatório HTML exportado.")
 
 
