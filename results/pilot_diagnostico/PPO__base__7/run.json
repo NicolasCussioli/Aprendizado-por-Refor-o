@@ -1,0 +1,81 @@
+{
+  "stage": "pilot",
+  "algorithm": "PPO",
+  "config_id": "base",
+  "training_seed": 7,
+  "status": "completed",
+  "parameters_requested": {
+    "learning_rate": 0.0003,
+    "gamma": 0.99,
+    "n_steps": 1024,
+    "batch_size": 64,
+    "n_epochs": 10,
+    "gae_lambda": 0.95,
+    "clip_range": 0.2,
+    "ent_coef": 0.01,
+    "policy_kwargs": {
+      "net_arch": {
+        "pi": [
+          64,
+          64
+        ],
+        "vf": [
+          64,
+          64
+        ]
+      }
+    }
+  },
+  "signature": "cd9b38c51faa66e23b5dddcfdcb4a6fa39ca22f8eb0d9daf9de0f90677afa8c5",
+  "environment_version": "1.0.0",
+  "environment_sha256": "5bf9d897b8ac92055f0a3eee56173a5e321d8039926a6e7c8656afd99e3a6c70",
+  "dependencies": {
+    "gymnasium": "1.3.0",
+    "stable-baselines3": "2.9.0",
+    "torch": "2.14.0+cpu",
+    "numpy": "2.5.3",
+    "pandas": "3.0.6",
+    "matplotlib": "3.11.2",
+    "pillow": "12.3.0"
+  },
+  "hardware": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "processor": "AMD64 Family 25 Model 33 Stepping 2, AuthenticAMD",
+    "device": "cpu",
+    "torch_threads": 1
+  },
+  "requested_steps": 20480,
+  "train_seconds": 19.41951309999422,
+  "actual_steps": 20480,
+  "model_path": "models/pilot/PPO__base__7.zip",
+  "parameters_effective": {
+    "verbose": 0,
+    "num_timesteps": 20480,
+    "seed": 7,
+    "action_noise": null,
+    "start_time": 1790472905391656800,
+    "learning_rate": 0.0003,
+    "tensorboard_log": null,
+    "use_sde": false,
+    "sde_sample_freq": -1,
+    "n_envs": 1,
+    "n_steps": 1024,
+    "gamma": 0.99,
+    "gae_lambda": 0.95,
+    "ent_coef": 0.01,
+    "vf_coef": 0.5,
+    "max_grad_norm": 0.5,
+    "batch_size": 64,
+    "n_epochs": 10,
+    "clip_range_vf": null,
+    "normalize_advantage": true,
+    "target_kl": null
+  },
+  "evaluation_mean": {
+    "episode_return": 18.767027553372554,
+    "survival_fraction": 0.15833333333333333,
+    "final_mean_health": 0.09831704874155915,
+    "water_used": 0.0,
+    "success": 0.0
+  }
+}

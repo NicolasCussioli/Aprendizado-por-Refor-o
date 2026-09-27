@@ -1,36 +1,62 @@
-# Trabalho de Aprendizado por Reforço — horta comunitária
+# Irrigação inteligente de uma horta comunitária
 
-## Situação atual
+Trabalho de Aprendizado por Reforço: ambiente próprio no Gymnasium e comparação de DQN, PPO e A2C com Stable-Baselines3.
 
-Tema, DQN/PPO/A2C e possível grupo em dupla aguardam validação do professor. O enunciado exige aprovação do problema antes da implementação. Este material prepara o notebook e o protocolo; ainda não existe ambiente implementado nem resultado de treinamento.
+## Aprovação e integrantes
 
-## Arquivos
+Em 26/09/2026, o usuário instruiu considerar a proposta e os algoritmos aprovados e autorizou implementação e publicação dos avanços. Os nomes completos e o prazo de entrega precisam ser preenchidos no relatório. Não foi anexado um registro independente da resposta do professor.
 
-- `trabalho_horta.ipynb`: estrutura do relatório com textos e código de preparação integrados.
-- `configs/experimentos.json`: 12 configurações candidatas, sementes e orçamentos propostos.
-- `apresentacao/roteiro.md`: estrutura do vídeo de até três minutos.
-- ZIPs originais: materiais das aulas, preservados na pasta.
+## Ambiente
 
-## Próximos passos
+Quatro canteiros com necessidades diferentes disputam um reservatório de oito unidades. O agente observa umidade, saúde, água, clima e tempo restante; escolhe entre irrigar um dos quatro canteiros, reabastecer ou esperar. O clima segue uma cadeia de Markov. O episódio tem 60 turnos e pode terminar antes se todas as plantas morrerem. As regras são sintéticas e não representam manejo agronômico validado.
 
-1. Registrar resposta do professor e confirmar integrantes e prazo.
-2. Fixar regras do MDP, coeficientes de recompensa e critérios de sucesso.
-3. Implementar e validar ambiente/renderização.
-4. Executar piloto; ajustar o orçamento conforme custo medido antes da busca.
-5. Executar busca, registrar todas as configurações e selecionar pela validação.
-6. Retreinar vencedoras, executar teste reservado e escrever resultados/conclusões.
-7. Gravar apresentação com todos os membros, publicar no YouTube e incluir link.
-8. Executar notebook completo, converter e revisar relatório.
+![Ambiente](reports/figures/ambiente.png)
 
-## Abrir o notebook
+## Estrutura
 
-Abra o Jupyter a partir desta pasta. As células atuais usam somente a biblioteca padrão do Python e não treinam agentes. A implementação futura exigirá Gymnasium, Stable-Baselines3, PyTorch e ferramentas de gráficos/renderização. Esses pacotes não foram instalados neste preparo. Escolher uma versão estável compatível e registrar as versões reais antes do treino.
+- `horta/env.py`: MDP, Gymnasium, renderização e heurística de referência.
+- `horta/experiments.py`: treinos, avaliação, seleção e registro retomável.
+- `horta/analysis.py`: agregação, gráficos e execução ilustrativa.
+- `configs/experimentos.json`: 12 configurações, orçamentos e sementes.
+- `tests/test_environment.py`: verificações da API, água, terminalidade e sementes.
+- `results/`: dados reais; o piloto de diagnóstico fica separado.
+- `trabalho_horta.ipynb`: notebook integrado ao relatório.
+- `scripts/build_report.py`: atualiza/executa o notebook e exporta HTML.
+- `apresentacao/roteiro.md`: roteiro da apresentação.
+- `requirements-lock.txt`: versões usadas (Python 3.12, Windows, PyTorch CPU).
 
-Para o relatório final, com Jupyter/nbconvert instalado:
+ZIPs das aulas, ambiente virtual, modelos e vídeos brutos ficam fora dos novos commits. Os ZIPs enviados inicialmente ainda constam no histórico antigo.
+
+## Instalação
+
+Na raiz do projeto, com Python 3.12:
 
 ```powershell
-jupyter nbconvert --to html trabalho_horta.ipynb
+python -m venv .venv
+.venv/Scripts/python.exe -m pip install -r requirements-lock.txt --extra-index-url https://download.pytorch.org/whl/cpu
 ```
 
-A versão exportada só será a entrega final depois de conter os experimentos reais, as conclusões e o link do vídeo.
+O lock registra o ambiente utilizado. Para outro sistema operacional, instalar as dependências diretas de `requirements.txt` e registrar um novo lock.
 
+## Verificações e experimentos
+
+```powershell
+.venv/Scripts/python.exe -m unittest discover -s tests -v
+.venv/Scripts/python.exe -m horta.experiments --stage pilot
+.venv/Scripts/python.exe -m horta.experiments --stage tuning
+.venv/Scripts/python.exe -m horta.experiments --stage final
+.venv/Scripts/python.exe -m horta.experiments --stage baselines
+.venv/Scripts/python.exe -m horta.analysis
+```
+
+É possível executar a busca por algoritmo em processos separados usando `--algorithm DQN`, `--algorithm PPO` e `--algorithm A2C`. Cada processo usa uma thread de PyTorch. Após concluir os três, executar a etapa final sem filtro para selecionar configurações com todos os dados.
+
+O runner retoma execuções concluídas sem repetir o treino e recusa mudanças no protocolo dessas execuções. Os modelos locais ficam em `models/`; dados e parâmetros vão para o Git. Para recriar modelos em outro clone, arquivar os resultados existentes antes de refazer as execuções.
+
+## Relatório e apresentação
+
+```powershell
+.venv/Scripts/python.exe scripts/build_report.py
+```
+
+O relatório carrega dados reais já produzidos e contém comandos explícitos para treinamento, evitando repetir horas de treino ao abrir o notebook. O HTML gerado fica em `reports/relatorio_horta.html`. O vídeo ilustrativo fica em `videos/execucao_ppo.mp4`; ele não substitui a apresentação com fala de todos os integrantes, de até três minutos, publicada no YouTube. Incluir o link e preencher os nomes antes da entrega.

@@ -1,0 +1,77 @@
+{
+  "stage": "pilot",
+  "algorithm": "A2C",
+  "config_id": "base",
+  "training_seed": 7,
+  "status": "completed",
+  "parameters_requested": {
+    "learning_rate": 0.0007,
+    "gamma": 0.99,
+    "n_steps": 32,
+    "gae_lambda": 1,
+    "ent_coef": 0.01,
+    "vf_coef": 0.5,
+    "max_grad_norm": 0.5,
+    "use_rms_prop": true,
+    "policy_kwargs": {
+      "net_arch": {
+        "pi": [
+          64,
+          64
+        ],
+        "vf": [
+          64,
+          64
+        ]
+      }
+    }
+  },
+  "signature": "bdb4a03823360bb4b9534e2ed6b3f8d47186a4b8f17476fec23b56b91a1085d8",
+  "environment_version": "1.0.0",
+  "environment_sha256": "96f9727ac63d091b98faafc43ddd985b10a0ba3e1619a2bc3cbe43d9fa9e5377",
+  "dependencies": {
+    "gymnasium": "1.3.0",
+    "stable-baselines3": "2.9.0",
+    "torch": "2.14.0+cpu",
+    "numpy": "2.5.3",
+    "pandas": "3.0.6",
+    "matplotlib": "3.11.2",
+    "pillow": "12.3.0"
+  },
+  "hardware": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "processor": "AMD64 Family 25 Model 33 Stepping 2, AuthenticAMD",
+    "device": "cpu",
+    "torch_threads": 1
+  },
+  "requested_steps": 20480,
+  "train_seconds": 13.696523999999044,
+  "actual_steps": 20480,
+  "model_path": "models/pilot/A2C__base__7.zip",
+  "parameters_effective": {
+    "verbose": 0,
+    "num_timesteps": 20480,
+    "seed": 7,
+    "action_noise": null,
+    "start_time": 1790473021505365900,
+    "learning_rate": 0.0007,
+    "tensorboard_log": null,
+    "use_sde": false,
+    "sde_sample_freq": -1,
+    "n_envs": 1,
+    "n_steps": 32,
+    "gamma": 0.99,
+    "gae_lambda": 1,
+    "ent_coef": 0.01,
+    "vf_coef": 0.5,
+    "max_grad_norm": 0.5,
+    "normalize_advantage": false
+  },
+  "evaluation_mean": {
+    "episode_return": 18.88036088670589,
+    "survival_fraction": 0.15833333333333333,
+    "final_mean_health": 0.09831704874155915,
+    "water_used": 0.0,
+    "success": 0.0
+  }
+}

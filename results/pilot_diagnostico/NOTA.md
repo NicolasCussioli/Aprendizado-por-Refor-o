@@ -1,0 +1,1 @@
+Piloto de diagnóstico: DQN/PPO concluíram, mas o registro do A2C falhou porque o SB3 alterou policy_kwargs adicionando uma classe de otimizador não serializável. Corrigido passando cópia profunda dos parâmetros. Esses dados não entram na busca nem no teste; o piloto foi refeito. A renderização também recebeu uma fonte com acentos.

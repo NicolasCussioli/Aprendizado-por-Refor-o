@@ -1,0 +1,12 @@
+gymnasium
+stable-baselines3
+numpy
+pandas
+matplotlib
+pillow
+pygame
+nbformat
+nbconvert
+ipykernel
+imageio
+imageio-ffmpeg

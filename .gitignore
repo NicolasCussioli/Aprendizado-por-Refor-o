@@ -9,3 +9,7 @@ __pycache__/
 models/
 logs/
 videos/
+*.zip
+!requirements*.txt
+reports/*.html
+*.tmp
