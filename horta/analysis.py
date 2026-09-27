@@ -55,8 +55,10 @@ def make_figures(summary, winners):
     labels = [LABELS[a] for a in summary.algorithm]
     colors = [COLORS[a] for a in summary.algorithm]
     for ax, metric, title in zip(axes, ["episode_return", "final_mean_health"], ["Retorno no teste", "Saúde final média"]):
-        ax.bar(labels, summary[metric + "_mean"], color=colors, alpha=0.9,
-               yerr=summary[metric + "_std"].fillna(0), capsize=5)
+        ax.bar(labels, summary[metric + "_mean"], color=colors, alpha=0.9)
+        has_sd = summary[metric + "_std"].notna().to_numpy()
+        ax.errorbar(np.arange(len(summary))[has_sd], summary.loc[has_sd, metric + "_mean"],
+                    yerr=summary.loc[has_sd, metric + "_std"], fmt="none", ecolor="black", capsize=5)
         ax.set_title(title)
         ax.grid(axis="y", alpha=0.2)
     axes[1].set_ylim(0, 1.1)
@@ -89,9 +91,14 @@ def make_figures(summary, winners):
     plt.close(fig)
 
     fig, ax = plt.subplots(figsize=(7, 4.5))
+    offsets = {"PPO": (6, 12), "A2C": (-18, -30), "DQN": (15, -25), "heuristic": (25, 20), "random": (-70, 20)}
     for _, row in summary.iterrows():
-        ax.scatter(row.water_used_mean, row.final_mean_health_mean, color=COLORS[row.algorithm], s=75)
-        ax.annotate(LABELS[row.algorithm], (row.water_used_mean, row.final_mean_health_mean), xytext=(5, 6), textcoords="offset points")
+        ax.scatter(row.water_used_mean, row.final_mean_health_mean, color=COLORS[row.algorithm], s=75,
+                   marker="D" if row.algorithm == "heuristic" else "o")
+        ax.annotate(LABELS[row.algorithm], (row.water_used_mean, row.final_mean_health_mean),
+                    xytext=offsets[row.algorithm], textcoords="offset points",
+                    ha="right" if row.algorithm == "A2C" else "left",
+                    arrowprops={"arrowstyle": "-", "color": COLORS[row.algorithm], "lw": 1})
     ax.set(xlabel="Água aplicada por episódio (unidades sintéticas)", ylabel="Saúde final média", ylim=(0, 1.07),
            title="Consumo e saúde devem ser interpretados em conjunto")
     ax.grid(alpha=0.2)
@@ -117,6 +124,7 @@ def record_demo(winners):
         done = terminal or truncated
     (ROOT / "videos").mkdir(exist_ok=True)
     imageio.mimsave(ROOT / "videos/execucao_ppo.mp4", frames, fps=4, macro_block_size=1)
+    shutil.copy2(ROOT / "videos/execucao_ppo.mp4", ROOT / "apresentacao/execucao_ppo.mp4")
     imageio.mimsave(ROOT / "reports/figures/execucao_ppo.gif", [f[::2, ::2] for f in frames], duration=250, loop=0)
     pd.DataFrame(trajectory).to_csv(ROOT / "results/demo_trajectory.csv", index=False)
     (ROOT / "results/demo_selection.json").write_text(json.dumps({"algorithm": algo, "config_id": winners[algo],

@@ -1,0 +1,25 @@
+{
+  "status": "passed",
+  "training_runs": 54,
+  "training_steps": 8355840,
+  "evaluated_episodes_including_baselines": 2870,
+  "winners": {
+    "DQN": "lr_3e-4",
+    "PPO": "gamma_095",
+    "A2C": "gamma_095"
+  },
+  "checks": [
+    "completude",
+    "sementes separadas",
+    "orçamento",
+    "hash do ambiente",
+    "parâmetros",
+    "médias por episódio",
+    "seleção por validação",
+    "dispersão entre treinamentos",
+    "referências",
+    "modelos publicados",
+    "notebook sem erros",
+    "relatório exportado"
+  ]
+}

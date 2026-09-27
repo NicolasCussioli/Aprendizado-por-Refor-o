@@ -1,29 +1,42 @@
-# Roteiro provisório — até 3 minutos
+# Apresentação — roteiro com resultados reais
 
-Meta: 2min50s, deixando 10 segundos de margem. Preencher resultados depois dos experimentos. Todos os integrantes precisam falar. Grupo em dupla ainda depende de aprovação.
+Integrantes: Nicolas Cussioli Raimundo, Marcelo Fontana.
 
-| Tempo | Conteúdo | Visual |
-|---|---|---|
-| 0:00–0:20 | Apresentar integrantes e desafio: manter quatro canteiros saudáveis gastando pouca água | Título e horta |
-| 0:20–1:05 | Explicar MDP em linguagem acessível: o que o agente observa, o que pode fazer, como o clima muda e como recebe recompensa | Renderização com estado e ação |
-| 1:05–1:30 | DQN, PPO, A2C; configurações e repetição com sementes; explicar avaliação em cenários separados | Esquema simples do experimento |
-| 1:30–2:25 | Mostrar comparação REAL de retorno, saúde e água; melhor configuração de cada algoritmo e uma dificuldade observada | Um gráfico legível e execução curta |
-| 2:25–2:50 | Conclusão apoiada nos dados e principal limitação do simulador | Resumo |
+Meta: 2min50s, com 10 segundos de margem. Ensaiar com cronômetro. Todos os integrantes devem falar. A divisão abaixo considera Nicolas e Marcelo; se houver outros integrantes, redistribuir os trechos.
 
-## Divisão de falas
+## 0:00–1:10 — Nicolas: problema e MDP
 
-- Se dupla aprovada: integrante 1 apresenta problema/MDP (0:00–1:05); integrante 2 apresenta metodologia/resultados (1:05–2:25); dividir a conclusão.
-- Se três integrantes: pessoa 1 explica contexto/estado; pessoa 2 explica ações/recompensa/metodologia; pessoa 3 apresenta resultados/conclusão.
-- Se quatro integrantes: pessoa 1 contextualiza; pessoa 2 explica MDP; pessoa 3 explica experimentos e parte dos resultados; pessoa 4 conclui a comparação e apresenta limitações.
+Olá! Somos Nicolas e Marcelo. Criamos uma horta virtual para estudar como manter quatro canteiros saudáveis usando pouca água.
 
-## Campos pendentes
+No ambiente Gymnasium, o agente observa umidade, saúde das plantas, água disponível, clima e tempo restante. Ele pode irrigar um canteiro, reabastecer ou esperar.
 
-Algoritmo/configuração com melhor retorno: [resultado real].
-Consumo e saúde associados: [resultado real].
-Variação entre sementes: [resultado real].
-Limitação principal: [observada/discutida no relatório].
-Link no YouTube: [incluir no notebook].
-Link de divulgação: [opcional].
+O clima muda de forma probabilística. A chuva aumenta a umidade; evaporação e drenagem reduzem a água no solo. Cada canteiro tem uma faixa ideal diferente. Seca e excesso de água prejudicam as plantas.
 
-Ensaiar com cronômetro. Evitar leitura de código ou tabelas extensas. Conferir legibilidade, som e duração do vídeo final.
+A recompensa favorece a saúde e penaliza consumo de água, reabastecimentos e mortes. O episódio dura até sessenta turnos. O tempo faz parte do estado porque influencia as decisões. As regras são didáticas, sem validação agronômica.
 
+**Visual:** renderização da horta e uma lista curta de estado, ações e recompensa.
+
+## 1:10–2:30 — Marcelo: experimentos e resultados
+
+Comparamos DQN, PPO e A2C, com quatro configurações por algoritmo e três sementes de treinamento. Escolhemos a melhor pela média da validação.
+
+Depois, retreinamos com cinco sementes novas. Cada modelo foi avaliado em cem episódios separados, sem continuar aprendendo. Comparamos também com ações aleatórias e uma regra que irriga o canteiro com maior necessidade.
+
+PPO teve o maior retorno médio entre os algoritmos: 55.9, com desvio de 0.3. Seu sucesso médio foi de 94.2 por cento. Sucesso exige terminar com todas as plantas vivas e saúde média de pelo menos cinquenta por cento.
+
+A heurística teve retorno 55.0, e a política aleatória, 13.6. O gráfico compara os métodos. Olhamos também saúde e água: gastar pouco pode significar deixar plantas morrerem.
+
+**Visual:** gráfico `reports/figures/comparacao.png`, mais uma execução curta de `apresentacao/execucao_ppo.mp4`. Valores completos para consultar: PPO: 55.90 ± 0.26; A2C: 55.14 ± 0.61; DQN: 54.42 ± 0.84.
+
+## 2:30–2:50 — conclusão dividida entre integrantes
+
+**Nicolas:** Conseguimos implementar o MDP e comparar três algoritmos com parâmetros e avaliações registrados.
+
+**Marcelo:** Os resultados valem para este simulador. Como próximos passos, podemos usar sensores com ruído, outras plantas e maior busca de hiperparâmetros.
+
+## Publicação
+
+- Gravar fala real de todos os integrantes e conferir duração máxima de três minutos.
+- Publicar no YouTube; o MP4 ilustrativo não substitui a apresentação.
+- Incluir o link em `configs/entrega.json` e gerar o relatório novamente.
+- Divulgação em rede social é opcional; inserir o link se realizada.

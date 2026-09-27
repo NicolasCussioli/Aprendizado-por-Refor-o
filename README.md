@@ -4,7 +4,23 @@ Trabalho de Aprendizado por Reforço: ambiente próprio no Gymnasium e comparaç
 
 ## Aprovação e integrantes
 
-Em 26/09/2026, o usuário instruiu considerar a proposta e os algoritmos aprovados e autorizou implementação e publicação dos avanços. Os nomes completos e o prazo de entrega precisam ser preenchidos no relatório. Não foi anexado um registro independente da resposta do professor.
+Integrantes: **Nicolas Cussioli Raimundo e Marcelo Fontana**. O desenvolvimento seguiu considerando tema, algoritmos e formação em dupla validados, conforme orientação dos integrantes em 26/09/2026. O nome do professor e o prazo de entrega precisam ser preenchidos.
+
+<!-- RESULTS:START -->
+## Resultados
+
+54 treinamentos, 12 configurações de hiperparâmetros e cinco sementes finais por algoritmo. Cada modelo final foi avaliado em 100 episódios reservados. DP é o desvio entre treinamentos; referências fixas não possuem esse desvio.
+
+| Método | Retorno médio ± DP | Sucesso | Água média |
+|---|---:|---:|---:|
+| A2C | 55.14 ± 0.61 | 92.8% | 16.86 |
+| DQN | 54.42 ± 0.84 | 92.2% | 17.42 |
+| PPO | 55.90 ± 0.26 | 94.2% | 16.20 |
+| Aleatória | 13.58 | 0.0% | 22.38 |
+| Heurística | 55.04 | 92.0% | 16.90 |
+
+Notebook e relatório: `trabalho_horta.ipynb` e `reports/relatorio_horta.html`. Dados brutos e configuração de cada tentativa: `results/`.
+<!-- RESULTS:END -->
 
 ## Ambiente
 
@@ -60,8 +76,11 @@ O runner retoma execuções concluídas sem repetir o treino e recusa mudanças 
 
 ```powershell
 .venv/Scripts/python.exe scripts/build_report.py
+.venv/Scripts/python.exe scripts/verify_results.py
 ```
 
-O relatório carrega dados reais já produzidos e contém comandos explícitos para treinamento, evitando repetir horas de treino ao abrir o notebook. O HTML gerado fica em `reports/relatorio_horta.html`. O vídeo ilustrativo fica em `videos/execucao_ppo.mp4`; ele não substitui a apresentação com fala de todos os integrantes, de até três minutos, publicada no YouTube. Incluir o link e preencher os nomes antes da entrega.
+O relatório carrega dados reais já produzidos e contém comandos explícitos para treinamento, evitando repetir horas de treino ao abrir o notebook. O HTML gerado fica em `reports/relatorio_horta.html`. O vídeo ilustrativo acompanha o repositório em `apresentacao/execucao_ppo.mp4`, com cópia local em `videos/`; ele não substitui a apresentação com fala de todos os integrantes, de até três minutos, publicada no YouTube. Incluir o link antes da entrega.
+
+A verificação final confere 54 treinamentos, 8.355.840 interações, 2.870 episódios de avaliação, configurações, sementes, orçamento, médias, dispersão, seleção, modelos e notebook. O piloto de diagnóstico é preservado, mas não entra nessas contagens.
 
 Editar nomes, professor, prazo e links em `configs/entrega.json`, depois gerar o relatório novamente. Para visualizar um modelo sem refazer os treinos: `python -m horta.demo --algorithm PPO --mode human`. Sem abrir uma janela, usar `--mode ansi`.

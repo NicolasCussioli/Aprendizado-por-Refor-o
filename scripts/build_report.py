@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import sys
 from urllib.parse import urlparse
@@ -38,7 +39,7 @@ def build():
 
 Integrantes: {', '.join(delivery['integrantes'])}. Professor: {delivery['professor']}. Prazo: {delivery['prazo']}.
 
-Em 26/09/2026, o usuário instruiu considerar tema, algoritmos e grupo aprovados. Essa informação autoriza a continuidade do projeto; a resposta original do professor não foi anexada.
+Por orientação dos integrantes em 26/09/2026, as etapas de validação do tema, dos algoritmos e da formação em dupla são consideradas atendidas para o desenvolvimento.
 
 **Apresentação no YouTube:** {youtube}. Divulgação em rede social: {social}.
 
@@ -239,8 +240,12 @@ display(Image(filename='reports/figures/aprendizado.png'))""")
         random = summary[summary.algorithm == "random"].iloc[0]
         heuristic = summary[summary.algorithm == "heuristic"].iloc[0]
         md(f"A referência aleatória obteve retorno {random.episode_return_mean:.2f}, enquanto a heurística obteve {heuristic.episode_return_mean:.2f}. O melhor método de RL ficou {best.episode_return_mean - heuristic.episode_return_mean:+.2f} pontos em relação à heurística e {best.episode_return_mean - random.episode_return_mean:+.2f} em relação à política aleatória. Essa comparação explicita se o aprendizado acrescenta benefício sobre uma regra baseada no conhecimento do simulador. Não foi aplicado teste de significância; a ordenação é descritiva.")
+        ppo = summary[summary.algorithm == "PPO"].iloc[0]
+        savings = 100 * (heuristic.water_used_mean - ppo.water_used_mean) / heuristic.water_used_mean
+        md(f"O PPO combinou saúde final média {ppo.final_mean_health_mean:.3f} e consumo {ppo.water_used_mean:.2f}, contra {heuristic.final_mean_health_mean:.3f} e {heuristic.water_used_mean:.2f} da heurística. A redução média de água foi de {savings:.1f}%, com maior saúde média neste conjunto. A política aleatória gastou {random.water_used_mean:.2f} e terminou com saúde {random.final_mean_health_mean:.3f}, mostrando que irrigar sem critério não basta. Essas diferenças são médias observadas, sem uma afirmação de significância estatística.")
+        md("Nas curvas dos retreinamentos finais, o PPO alcançou retornos altos com menos interações, enquanto o A2C continuou melhorando ao longo de um período maior. A busca e o teste usam orçamentos e sementes diferentes; por isso, suas médias não devem ser tratadas como uma comparação controlada do efeito exclusivo do orçamento. O desempenho final também mostra por que avaliar somente um treino curto poderia subestimar o A2C.")
         md("As curvas exibem retornos coletados durante o treino, incluindo a exploração, e não os retornos determinísticos do teste. A suavização usa 100 episódios; as linhas são médias entre sementes em uma grade comum de interações e as faixas representam um desvio padrão. Dados brutos são mantidos nos arquivos Monitor. Consumir pouca água só é uma vantagem se a saúde também for preservada.")
-        md("### 4.3 Execução ilustrativa\n\nPPO, primeira semente de treino (101) e primeira semente de teste (2000) foram definidos para a demonstração. A trajetória não foi escolhida por apresentar o melhor resultado e não substitui as médias. A animação acompanha o repositório, e o MP4 para edição fica localmente em `videos/execucao_ppo.mp4`.")
+        md("### 4.3 Execução ilustrativa\n\nPPO, primeira semente de treino (101) e primeira semente de teste (2000) foram definidos para a demonstração. A trajetória não foi escolhida por apresentar o melhor resultado e não substitui as médias. A animação acompanha o repositório, e o MP4 para edição está em `apresentacao/execucao_ppo.mp4`, com cópia local em `videos/`.")
         code("display(Image(filename='reports/figures/execucao_ppo.gif'))\ndisplay(pd.read_csv('results/demo_trajectory.csv').head(10))")
         md(f"## 5. Conclusões\n\nO ambiente implementado permite relacionar o MDP a uma tarefa de gestão de recursos e comparar três métodos profundos. No protocolo executado, {best.algorithm} apresentou o maior retorno médio entre os algoritmos de RL. O sucesso médio foi de {best.success_mean:.1%}; esse indicador deve ser lido junto à dispersão do retorno, à saúde e ao consumo. A heurística atingiu retorno {heuristic.episode_return_mean:.2f}, oferecendo uma referência de solução por conhecimento das regras. Os resultados descrevem este cenário, sem estabelecer uma classificação geral de algoritmos.")
     else:
@@ -295,8 +300,8 @@ def main():
     delivery = json.loads((ROOT / "configs/entrega.json").read_text(encoding="utf-8"))
     checklist = f"""# Checklist do trabalho
 
-- [x] Integrantes: {', '.join(delivery['integrantes'])}; dupla considerada aprovada conforme instrução do usuário.
-- [x] Proposta e algoritmos considerados aprovados conforme instrução do usuário.
+- [x] Integrantes: {', '.join(delivery['integrantes'])}; validação da dupla considerada atendida por orientação dos integrantes.
+- [x] Validação da proposta e dos algoritmos considerada atendida por orientação dos integrantes.
 - [x] MDP documentado com estados, ações, transições, recompensa e horizonte.
 - [x] Ambiente próprio implementado no Gymnasium.
 - [x] Renderização rgb_array, human e ansi.
@@ -328,6 +333,15 @@ Editar identificação e links em `configs/entrega.json` e executar `python scri
         heuristic = summary[summary.algorithm == "heuristic"].iloc[0]
         random = summary[summary.algorithm == "random"].iloc[0]
         ranking = "; ".join(f"{row.algorithm}: {row.episode_return_mean:.2f} ± {row.episode_return_std:.2f}" for _, row in rl.iterrows())
+        table = ["| Método | Retorno médio ± DP | Sucesso | Água média |", "|---|---:|---:|---:|"]
+        for _, row in summary.iterrows():
+            label = {"random": "Aleatória", "heuristic": "Heurística"}.get(row.algorithm, row.algorithm)
+            result = f"{row.episode_return_mean:.2f}" if pd.isna(row.episode_return_std) else f"{row.episode_return_mean:.2f} ± {row.episode_return_std:.2f}"
+            table.append(f"| {label} | {result} | {row.success_mean:.1%} | {row.water_used_mean:.2f} |")
+        result_block = "<!-- RESULTS:START -->\n## Resultados\n\n54 treinamentos, 12 configurações de hiperparâmetros e cinco sementes finais por algoritmo. Cada modelo final foi avaliado em 100 episódios reservados. DP é o desvio entre treinamentos; referências fixas não possuem esse desvio.\n\n" + "\n".join(table) + "\n\nNotebook e relatório: `trabalho_horta.ipynb` e `reports/relatorio_horta.html`. Dados brutos e configuração de cada tentativa: `results/`.\n<!-- RESULTS:END -->"
+        readme = ROOT / "README.md"
+        readme.write_text(re.sub(r"<!-- RESULTS:START -->.*?<!-- RESULTS:END -->", lambda _: result_block,
+                                 readme.read_text(encoding="utf-8-sig"), flags=re.S), encoding="utf-8")
         script = f"""# Apresentação — roteiro com resultados reais
 
 Integrantes: {', '.join(json.loads((ROOT / 'configs/entrega.json').read_text(encoding='utf-8'))['integrantes'])}.
@@ -336,27 +350,27 @@ Meta: 2min50s, com 10 segundos de margem. Ensaiar com cronômetro. Todos os inte
 
 ## 0:00–1:10 — Nicolas: problema e MDP
 
-Olá! Somos Nicolas e Marcelo. Nosso trabalho estuda a irrigação de uma horta comunitária usando aprendizado por reforço. O desafio é manter quatro canteiros saudáveis sem gastar água desnecessariamente.
+Olá! Somos Nicolas e Marcelo. Criamos uma horta virtual para estudar como manter quatro canteiros saudáveis usando pouca água.
 
-Criamos um ambiente no Gymnasium. O agente observa a umidade e a saúde de cada canteiro, a água disponível, o clima e o tempo restante. Em cada turno, ele pode irrigar um canteiro, reabastecer o reservatório ou esperar.
+No ambiente Gymnasium, o agente observa umidade, saúde das plantas, água disponível, clima e tempo restante. Ele pode irrigar um canteiro, reabastecer ou esperar.
 
-O clima muda de forma probabilística. A chuva aumenta a umidade, enquanto evaporação e drenagem reduzem a água no solo. Cada canteiro tem uma faixa ideal diferente. Tanto a seca como o excesso de água prejudicam sua saúde.
+O clima muda de forma probabilística. A chuva aumenta a umidade; evaporação e drenagem reduzem a água no solo. Cada canteiro tem uma faixa ideal diferente. Seca e excesso de água prejudicam as plantas.
 
-A recompensa favorece plantas saudáveis e penaliza o uso de água, reabastecimentos e mortes. Cada episódio dura até sessenta turnos. Incluímos o tempo no estado porque ele influencia as decisões. As regras são uma simulação didática, não um modelo agronômico validado.
+A recompensa favorece a saúde e penaliza consumo de água, reabastecimentos e mortes. O episódio dura até sessenta turnos. O tempo faz parte do estado porque influencia as decisões. As regras são didáticas, sem validação agronômica.
 
 **Visual:** renderização da horta e uma lista curta de estado, ações e recompensa.
 
 ## 1:10–2:30 — Marcelo: experimentos e resultados
 
-Comparamos DQN, PPO e A2C. Testamos quatro configurações por algoritmo, cada uma com três sementes de treinamento. Escolhemos a melhor pela média dos resultados de validação.
+Comparamos DQN, PPO e A2C, com quatro configurações por algoritmo e três sementes de treinamento. Escolhemos a melhor pela média da validação.
 
-Depois, treinamos novamente as configurações escolhidas com cinco sementes novas. Cada modelo foi avaliado em cem episódios separados, sem continuar aprendendo. Também comparamos com ações aleatórias e uma regra simples que irriga o canteiro com maior necessidade.
+Depois, retreinamos com cinco sementes novas. Cada modelo foi avaliado em cem episódios separados, sem continuar aprendendo. Comparamos também com ações aleatórias e uma regra que irriga o canteiro com maior necessidade.
 
-Entre os algoritmos de aprendizado, {best.algorithm} teve o maior retorno médio: aproximadamente {best.episode_return_mean:.1f}, com desvio de {best.episode_return_std:.1f} entre treinamentos. Seu sucesso médio foi de {100 * best.success_mean:.1f} por cento. Sucesso significa terminar os sessenta turnos com todas as plantas vivas e saúde média de pelo menos cinquenta por cento.
+{best.algorithm} teve o maior retorno médio entre os algoritmos: {best.episode_return_mean:.1f}, com desvio de {best.episode_return_std:.1f}. Seu sucesso médio foi de {100 * best.success_mean:.1f} por cento. Sucesso exige terminar com todas as plantas vivas e saúde média de pelo menos cinquenta por cento.
 
-A heurística teve retorno {heuristic.episode_return_mean:.1f}, e a política aleatória, {random.episode_return_mean:.1f}. O gráfico mostra por que é importante comparar várias sementes e olhar também saúde e água: gastar pouco pode significar simplesmente deixar plantas morrerem.
+A heurística teve retorno {heuristic.episode_return_mean:.1f}, e a política aleatória, {random.episode_return_mean:.1f}. O gráfico compara os métodos. Olhamos também saúde e água: gastar pouco pode significar deixar plantas morrerem.
 
-**Visual:** gráfico `reports/figures/comparacao.png`, mais uma execução curta do MP4 local. Valores completos para consultar: {ranking}.
+**Visual:** gráfico `reports/figures/comparacao.png`, mais uma execução curta de `apresentacao/execucao_ppo.mp4`. Valores completos para consultar: {ranking}.
 
 ## 2:30–2:50 — conclusão dividida entre integrantes
 

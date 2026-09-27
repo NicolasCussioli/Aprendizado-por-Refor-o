@@ -1,0 +1,7 @@
+{
+  "algorithm": "PPO",
+  "config_id": "gamma_095",
+  "training_seed": 101,
+  "evaluation_seed": 2000,
+  "reason": "PPO e primeiras sementes predefinidos; não representa a média de desempenho."
+}

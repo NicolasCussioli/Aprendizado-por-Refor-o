@@ -1,0 +1,23 @@
+{
+  "DQN": {
+    "config_id": "lr_3e-4",
+    "training_seed": 101,
+    "selection": "Primeira semente fixada, não a melhor execução.",
+    "sha256": "bcb0f3379a51522c35ee1a5cc657a11a42e98e5786dbcafe67b17e9ff1d3b07f",
+    "run_record": "results/final/DQN__lr_3e-4__101/run.json"
+  },
+  "PPO": {
+    "config_id": "gamma_095",
+    "training_seed": 101,
+    "selection": "Primeira semente fixada, não a melhor execução.",
+    "sha256": "eac8e94b035f40dccb6f7b6b87fc437da82b2460fe78dcb9a2f21c58ad4cd431",
+    "run_record": "results/final/PPO__gamma_095__101/run.json"
+  },
+  "A2C": {
+    "config_id": "gamma_095",
+    "training_seed": 101,
+    "selection": "Primeira semente fixada, não a melhor execução.",
+    "sha256": "fa10a4b033de33a309331c78dd64693276466fd14bb6cdfd5c95654b2ea4a3f9",
+    "run_record": "results/final/A2C__gamma_095__101/run.json"
+  }
+}
