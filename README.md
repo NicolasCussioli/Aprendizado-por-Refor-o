@@ -39,6 +39,7 @@ Quatro canteiros com necessidades diferentes disputam um reservatório de oito u
 - `trabalho_horta.ipynb`: notebook integrado ao relatório.
 - `scripts/build_report.py`: atualiza/executa o notebook e exporta HTML.
 - `apresentacao/roteiro.md`: roteiro da apresentação.
+- `apresentacao/apresentacao_horta.pptx`: seis slides para a gravação, com as falas de Nicolas e Marcelo nas notas do apresentador.
 - `requirements-lock.txt`: versões usadas (Python 3.12, Windows, PyTorch CPU).
 - `artifacts/models/`: um modelo final por algoritmo, da semente 101, com registro de origem e checksum.
 
@@ -79,7 +80,7 @@ O runner retoma execuções concluídas sem repetir o treino e recusa mudanças 
 .venv/Scripts/python.exe scripts/verify_results.py
 ```
 
-O relatório carrega dados reais já produzidos e contém comandos explícitos para treinamento, evitando repetir horas de treino ao abrir o notebook. O HTML gerado fica em `reports/relatorio_horta.html`. O vídeo ilustrativo acompanha o repositório em `apresentacao/execucao_ppo.mp4`, com cópia local em `videos/`; ele não substitui a apresentação com fala de todos os integrantes, de até três minutos, publicada no YouTube. Incluir o link antes da entrega.
+O relatório carrega dados reais já produzidos e contém comandos explícitos para treinamento, evitando repetir horas de treino ao abrir o notebook. O HTML gerado fica em `reports/relatorio_horta.html`. Os slides estão em `apresentacao/apresentacao_horta.pptx`, com roteiro nas notas. O vídeo ilustrativo acompanha o repositório em `apresentacao/execucao_ppo.mp4`, com cópia local em `videos/`; ele não substitui a apresentação com fala de todos os integrantes, de até três minutos, publicada no YouTube. Incluir o link antes da entrega.
 
 A verificação final confere 54 treinamentos, 8.355.840 interações, 2.870 episódios de avaliação, configurações, sementes, orçamento, médias, dispersão, seleção, modelos e notebook. O piloto de diagnóstico é preservado, mas não entra nessas contagens.
 

@@ -13,3 +13,4 @@ videos/
 !artifacts/models/*.zip
 !requirements*.txt
 *.tmp
+/scripts/node_modules/
