@@ -12,10 +12,13 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 
-def worker(algo, config_id, seed, params, config):
+def initialize_worker():
     import torch
     torch.set_num_threads(1)
     torch.set_num_interop_threads(1)
+
+
+def worker(algo, config_id, seed, params, config):
     from horta.experiments import run_trial
     return run_trial("final", algo, config_id, seed, params, config)
 
@@ -26,7 +29,7 @@ def main():
     params = candidates(config)
     scheduled = set()
     futures = []
-    with ProcessPoolExecutor(max_workers=5) as pool:
+    with ProcessPoolExecutor(max_workers=5, initializer=initialize_worker) as pool:
         while len(scheduled) < 3:
             runs = collect_runs("tuning")
             for algo in config["algorithms"]:

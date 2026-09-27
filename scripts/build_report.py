@@ -5,6 +5,7 @@ import json
 import os
 import subprocess
 import sys
+from urllib.parse import urlparse
 from pathlib import Path
 
 import nbformat
@@ -27,6 +28,8 @@ def build():
     final_path = ROOT / "results/final_summary.csv"
     finished = final_path.exists()
     delivery = json.loads((ROOT / "configs/entrega.json").read_text(encoding="utf-8"))
+    if delivery["youtube"] and urlparse(delivery["youtube"]).hostname not in {"youtube.com", "www.youtube.com", "m.youtube.com", "youtu.be"}:
+        raise ValueError("O enunciado exige que o link da apresentação seja do YouTube.")
     youtube = f"[Apresentação no YouTube]({delivery['youtube']})" if delivery["youtube"] else "[incluir link após gravação com a fala de todos os integrantes]"
     social = f"[Divulgação]({delivery['divulgacao']})" if delivery["divulgacao"] else "[opcional]"
     md(f"""# Irrigação inteligente de uma horta comunitária
@@ -102,7 +105,7 @@ O gerador `self.np_random` controla a aleatoriedade. A quantidade e a ordem dos 
 
 ### 2.4 Implementação
 
-A célula seguinte contém o código real de `horta/env.py`, incluído automaticamente para manter texto e implementação juntos. A renderização oferece modos `rgb_array`, `human` e `ansi`; a imagem é usada para compreensão e apresentação, enquanto a política recebe o vetor numérico.""")
+A célula seguinte contém o código real de `horta/env.py`, incluído automaticamente para manter texto e implementação juntos. A renderização oferece modos `rgb_array`, `human` e `ansi`; a imagem é usada para compreensão e apresentação, enquanto a política recebe o vetor numérico. A imagem abaixo exemplifica a heurística na semente 1000, turno 12, e não um resultado de treinamento.""")
     code((ROOT / "horta/env.py").read_text(encoding="utf-8"))
     code("""from IPython.display import display, Image, Code
 from gymnasium.utils.env_checker import check_env as gym_check
@@ -204,6 +207,10 @@ else:
     if finished:
         winners = json.loads((ROOT / "results/winners.json").read_text(encoding="utf-8"))
         md("Seleção feita exclusivamente pela validação: " + "; ".join(f"**{a}: `{c}`**" for a,c in winners.items()) + ". As demais configurações permanecem nas tabelas para justificar a escolha. O vencedor na validação não precisa obter o mesmo desempenho após novo treinamento com sementes diferentes.")
+        tuning_summary = collect_runs("tuning").groupby(["algorithm", "config_id"]).episode_return.agg(["mean", "std"])
+        for algo, selected in winners.items():
+            choice, base = tuning_summary.loc[(algo, selected)], tuning_summary.loc[(algo, "base")]
+            md(f"Na validação do **{algo}**, `{selected}` teve retorno {choice['mean']:.2f} ± {choice['std']:.2f}, contra {base['mean']:.2f} ± {base['std']:.2f} da base. A diferença de média foi {choice['mean'] - base['mean']:+.2f}. A escolha segue o critério pré-definido; especialmente quando a diferença é pequena diante da dispersão, não deve ser interpretada como prova de superioridade estatística.")
         md("### 4.2 Teste final e referências\n\nResultados em episódios reservados, após retreinamento das configurações selecionadas. As colunas de desvio dos métodos de RL medem dispersão entre cinco treinamentos; nas referências são ausentes.")
         code("""summary = pd.read_csv('results/final_summary.csv')
 def mean_sd(row, metric, precision=2, percent=False):
@@ -243,7 +250,7 @@ display(Image(filename='reports/figures/aprendizado.png'))""")
 
 O clima e as equações de saúde foram escolhidos para produzir um problema didático, sem calibração empírica. A política observa o estado completo e a reposição de água externa é ilimitada, embora exija uma ação. A busca tem somente quatro configurações por algoritmo e não explora conjuntamente todos os parâmetros; a arquitetura foi fixada. Cinco sementes finais ajudam a revelar variação, mas não eliminam incerteza. O ajuste dos pesos de recompensa e da arquitetura não foi incluído nos experimentos.
 
-O registro de parâmetros do A2C e os acentos da renderização exigiram correção no piloto. A separação entre sementes de treino, validação e teste, a preservação de tentativas e a distinção entre episódios e treinamentos foram cuidados essenciais na organização do trabalho. A execução de treinos em paralelo também limita comparações estritas de tempo de CPU.
+O registro de parâmetros do A2C e os acentos da renderização exigiram correção no piloto. O agendador também precisou configurar threads do PyTorch somente na inicialização de cada processo, preservando os resultados concluídos ao retomar. Essas correções operacionais não alteraram o MDP ou os hiperparâmetros. A separação entre sementes de treino, validação e teste, a preservação de tentativas e a distinção entre episódios e treinamentos foram cuidados essenciais na organização do trabalho. A execução de treinos em paralelo também limita comparações estritas de tempo de CPU. O registro operacional está em `results/operational_notes.md`.
 
 Como continuidade, propomos avaliar sensores ruidosos, reservatório captando chuva, escassez real da fonte de reposição, outras espécies, maior busca de hiperparâmetros e testes estatísticos com mais sementes. Esses itens são extensões, não funcionalidades já implementadas.
 

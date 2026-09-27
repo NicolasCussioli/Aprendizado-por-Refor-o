@@ -1,0 +1,81 @@
+{
+  "stage": "tuning",
+  "algorithm": "PPO",
+  "config_id": "base",
+  "training_seed": 22,
+  "status": "completed",
+  "parameters_requested": {
+    "learning_rate": 0.0003,
+    "gamma": 0.99,
+    "n_steps": 1024,
+    "batch_size": 64,
+    "n_epochs": 10,
+    "gae_lambda": 0.95,
+    "clip_range": 0.2,
+    "ent_coef": 0.01,
+    "policy_kwargs": {
+      "net_arch": {
+        "pi": [
+          64,
+          64
+        ],
+        "vf": [
+          64,
+          64
+        ]
+      }
+    }
+  },
+  "signature": "3b596c2a888a8318619606af104335163bc44c8b829f17d74638b28935bbb2e0",
+  "environment_version": "1.0.0",
+  "environment_sha256": "96f9727ac63d091b98faafc43ddd985b10a0ba3e1619a2bc3cbe43d9fa9e5377",
+  "dependencies": {
+    "gymnasium": "1.3.0",
+    "stable-baselines3": "2.9.0",
+    "torch": "2.14.0+cpu",
+    "numpy": "2.5.3",
+    "pandas": "3.0.6",
+    "matplotlib": "3.11.2",
+    "pillow": "12.3.0"
+  },
+  "hardware": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "processor": "AMD64 Family 25 Model 33 Stepping 2, AuthenticAMD",
+    "device": "cpu",
+    "torch_threads": 1
+  },
+  "requested_steps": 102400,
+  "train_seconds": 119.703259599999,
+  "actual_steps": 102400,
+  "model_path": "models/tuning/PPO__base__22.zip",
+  "parameters_effective": {
+    "verbose": 0,
+    "num_timesteps": 102400,
+    "seed": 22,
+    "action_noise": null,
+    "start_time": 1790473174413185200,
+    "learning_rate": 0.0003,
+    "tensorboard_log": null,
+    "use_sde": false,
+    "sde_sample_freq": -1,
+    "n_envs": 1,
+    "n_steps": 1024,
+    "gamma": 0.99,
+    "gae_lambda": 0.95,
+    "ent_coef": 0.01,
+    "vf_coef": 0.5,
+    "max_grad_norm": 0.5,
+    "batch_size": 64,
+    "n_epochs": 10,
+    "clip_range_vf": null,
+    "normalize_advantage": true,
+    "target_kl": null
+  },
+  "evaluation_mean": {
+    "episode_return": 52.7693928647381,
+    "survival_fraction": 0.8916666666666667,
+    "final_mean_health": 0.7946878972456319,
+    "water_used": 16.082471330084775,
+    "success": 0.7666666666666667
+  }
+}

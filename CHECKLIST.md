@@ -7,8 +7,8 @@
 - [x] Renderização rgb_array, human e ansi.
 - [x] API do Gymnasium/SB3 e seis verificações do ambiente.
 - [x] DQN, PPO e A2C integrados; piloto dos três concluído.
-- [ ] Busca de hiperparâmetros: 32/36 treinamentos concluídos, 12 configurações e 3 sementes por configuração.
-- [ ] Retreinamento final: 0/15 treinamentos concluídos, 5 sementes por algoritmo.
+- [x] Busca de hiperparâmetros: 36/36 treinamentos concluídos, 12 configurações e 3 sementes por configuração.
+- [ ] Retreinamento final: 5/15 treinamentos concluídos, 5 sementes por algoritmo.
 - [ ] Referências aleatória e heurística avaliadas em teste.
 - [ ] Resultados, gráficos e comparação de todas as configurações.
 - [x] Notebook com texto e código integrados, executado sem erros.
