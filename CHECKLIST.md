@@ -15,7 +15,7 @@
 - [x] Notebook convertido para relatório HTML.
 - [x] Discussão de resultados e conclusões preenchidas com dados reais.
 - [x] Modelos reproduzíveis e execução ilustrativa.
-- [x] Roteiro de apresentação preparado.
+- [x] Slides da apresentação preparados.
 - [ ] Gravar apresentação de até 3 minutos com fala de todos os integrantes.
 - [ ] Publicar no YouTube e incluir link no relatório.
 - [x] Preencher nome do professor.

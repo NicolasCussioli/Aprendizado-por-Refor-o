@@ -259,7 +259,7 @@ Como continuidade, propomos avaliar sensores ruidosos, reservatório captando ch
 
 ## 6. Apresentação e entrega
 
-A apresentação deve durar no máximo três minutos, com todos os integrantes falando, e estar no YouTube. O roteiro em `apresentacao/roteiro.md` prioriza MDP e resultados. A animação gerada é material de apoio e não substitui a apresentação dos integrantes. O link da apresentação deve constar no relatório. A divulgação em redes sociais é opcional, com link no relatório se realizada.
+A apresentação deve durar no máximo três minutos, com todos os integrantes falando, e estar no YouTube. Os slides em `apresentacao/apresentacao_horta_sem_notas.pptx` priorizam o MDP e os resultados. A animação gerada é material de apoio e não substitui a apresentação dos integrantes. O link da apresentação deve constar no relatório. A divulgação em redes sociais é opcional, com link no relatório se realizada.
 
 ## Referências
 
@@ -313,7 +313,7 @@ def main():
 - [x] Notebook convertido para relatório HTML.
 - [{'x' if (ROOT / 'results/final_summary.csv').exists() else ' '}] Discussão de resultados e conclusões preenchidas com dados reais.
 - [{'x' if (ROOT / 'artifacts/models/manifest.json').exists() else ' '}] Modelos reproduzíveis e execução ilustrativa.
-- [x] Roteiro de apresentação preparado.
+- [x] Slides da apresentação preparados.
 - [ ] Gravar apresentação de até 3 minutos com fala de todos os integrantes.
 - [{'x' if delivery['youtube'] else ' '}] Publicar no YouTube e incluir link no relatório.
 - [{'x' if '[preencher]' not in delivery['professor'] else ' '}] Preencher nome do professor.
