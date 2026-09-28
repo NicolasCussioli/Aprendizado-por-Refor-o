@@ -17,7 +17,7 @@
 - [x] Modelos reproduzíveis e execução ilustrativa.
 - [x] Slides da apresentação preparados.
 - [ ] Gravar apresentação de até 3 minutos com fala de todos os integrantes.
-- [ ] Publicar no YouTube e incluir link no relatório.
+- [x] Publicar no YouTube e incluir link no relatório.
 - [x] Preencher nome do professor.
 - [ ] Opcional: divulgar em rede social e incluir link.
 
