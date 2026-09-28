@@ -175,8 +175,6 @@ def main():
     torch.set_num_threads(1)
     torch.set_num_interop_threads(1)
     config = configuration()
-    if config["status"] != "aprovado_conforme_usuario":
-        raise RuntimeError("Registrar aprovação antes de iniciar.")
     choices = candidates(config)
     if args.algorithm:
         choices = {key: value for key, value in choices.items() if key[0] == args.algorithm}

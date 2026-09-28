@@ -14,6 +14,5 @@ videos/
 !requirements*.txt
 *.tmp
 /scripts/node_modules/
-/apresentacao/apresentacao_horta.pptx
 /apresentacao/~$*.pptx
 /apresentacao/roteiro.md

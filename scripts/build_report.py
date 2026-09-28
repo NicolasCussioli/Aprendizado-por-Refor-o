@@ -259,7 +259,7 @@ Como continuidade, propomos avaliar sensores ruidosos, reservatório captando ch
 
 ## 6. Apresentação e entrega
 
-A apresentação deve durar no máximo três minutos, com todos os integrantes falando, e estar no YouTube. Os slides em `apresentacao/apresentacao_horta_sem_notas.pptx` priorizam o MDP e os resultados. A animação gerada é material de apoio e não substitui a apresentação dos integrantes. O link da apresentação deve constar no relatório. A divulgação em redes sociais é opcional, com link no relatório se realizada.
+A apresentação deve durar no máximo três minutos, com todos os integrantes falando, e estar no YouTube. Os slides em `apresentacao/apresentacao_horta.pptx` priorizam o MDP e os resultados. A animação gerada é material de apoio e não substitui a apresentação dos integrantes. O link da apresentação deve constar no relatório. A divulgação em redes sociais é opcional, com link no relatório se realizada.
 
 ## Referências
 

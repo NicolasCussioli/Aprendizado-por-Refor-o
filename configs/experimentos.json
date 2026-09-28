@@ -1,5 +1,4 @@
 {
-  "status": "aprovado_conforme_usuario",
   "policy": "MlpPolicy",
   "device": "cpu",
   "n_envs": 1,
@@ -307,6 +306,5 @@
         }
       ]
     }
-  },
-  "approval_note": "Em 2026-09-26, o usuário instruiu considerar tema, algoritmos e grupo aprovados e autorizou implementação e publicação dos avanços."
+  }
 }
