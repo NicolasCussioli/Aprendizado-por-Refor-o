@@ -4,7 +4,7 @@ Trabalho de Aprendizado por Reforço: ambiente próprio no Gymnasium e comparaç
 
 ## Aprovação e integrantes
 
-Integrantes: **Nicolas Cussioli Raimundo e Marcelo Fontana**. O desenvolvimento seguiu considerando tema, algoritmos e formação em dupla validados, conforme orientação dos integrantes em 26/09/2026. O nome do professor e o prazo de entrega precisam ser preenchidos.
+Integrantes: **Nicolas Cussioli Raimundo e Marcelo Fontana**. Professor: **Gabriel de Oliveira Ramos**. A solicitação sobre a formação em dupla, o tema e os algoritmos foi enviada ao professor e aguarda resposta.
 
 <!-- RESULTS:START -->
 ## Resultados
@@ -84,4 +84,4 @@ O relatório carrega dados reais já produzidos e contém comandos explícitos p
 
 A verificação final confere 54 treinamentos, 8.355.840 interações, 2.870 episódios de avaliação, configurações, sementes, orçamento, médias, dispersão, seleção, modelos e notebook. O piloto de diagnóstico é preservado, mas não entra nessas contagens.
 
-Editar nomes, professor, prazo e links em `configs/entrega.json`, depois gerar o relatório novamente. Para visualizar um modelo sem refazer os treinos: `python -m horta.demo --algorithm PPO --mode human`. Sem abrir uma janela, usar `--mode ansi`.
+Editar identificação e links em `configs/entrega.json`, depois gerar o relatório novamente. Para visualizar um modelo sem refazer os treinos: `python -m horta.demo --algorithm PPO --mode human`. Sem abrir uma janela, usar `--mode ansi`.

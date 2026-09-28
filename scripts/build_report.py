@@ -37,9 +37,7 @@ def build():
 
 **Trabalho de Aprendizado por Reforço — notebook e relatório**
 
-Integrantes: {', '.join(delivery['integrantes'])}. Professor: {delivery['professor']}. Prazo: {delivery['prazo']}.
-
-Por orientação dos integrantes em 26/09/2026, as etapas de validação do tema, dos algoritmos e da formação em dupla são consideradas atendidas para o desenvolvimento.
+Integrantes: {', '.join(delivery['integrantes'])}. Professor: {delivery['professor']}.
 
 **Apresentação no YouTube:** {youtube}. Divulgação em rede social: {social}.
 
@@ -128,7 +126,7 @@ display(Image(filename='reports/figures/ambiente.png'))""")
 | PPO | Ator e crítico com objetivo de política sujeito a clipping; on-policy | Método usado no módulo 3; referência para aprendizagem de política |
 | A2C | Ator e crítico com atualizações por vantagem; on-policy | Compara outro método de política e estimação de valor |
 
-Os três suportam ações discretas e usam `MlpPolicy`. O DQN usa camadas ocultas `[64,64]`; PPO e A2C usam `[64,64]` no ator e no crítico. Não se trata de uma igualdade de número de parâmetros: as famílias têm estruturas distintas. Todos usam CPU, um ambiente por treino e uma thread de PyTorch por processo. O tempo de treino será reportado, mas a execução simultânea pode introduzir variação por disputa dos recursos do computador.
+Os três suportam ações discretas e usam `MlpPolicy`. O DQN usa camadas ocultas `[64,64]`; PPO e A2C usam `[64,64]` no ator e no crítico. Não se trata de uma igualdade de número de parâmetros: as famílias têm estruturas distintas. Todos usam CPU, um ambiente por treino e uma thread de PyTorch por processo. O tempo de treino é reportado, mas a execução simultânea pode introduzir variação por disputa dos recursos do computador.
 
 ### 3.2 Busca de hiperparâmetros
 
@@ -190,12 +188,12 @@ else:
 
 No diagnóstico inicial, DQN e PPO concluíram; o registro do A2C falhou porque sua inicialização modificou `policy_kwargs`, incluindo uma classe de otimizador que não era serializável em JSON. O runner foi corrigido para entregar uma cópia profunda dos parâmetros ao algoritmo. Os arquivos dessa tentativa foram preservados em `results/pilot_diagnostico`, separados das comparações. O piloto dos três métodos foi refeito. A fonte da renderização também foi corrigida para suportar acentos.
 
-O piloto verificado abaixo não serve como resultado final nem foi usado para escolher hiperparâmetros. Todas as configurações planejadas da busca serão apresentadas, inclusive as de baixo desempenho. Versões, sementes, código, orçamento, duração e status ficam em cada `run.json`; retornos de treino ficam em `monitor.csv` e avaliação por episódio em `evaluation.csv`. Um modelo final de cada algoritmo, sempre da semente 101 fixada antes da comparação, acompanha o repositório em `artifacts/models/`; os demais são artefatos locais regeneráveis. O lock de dependências registra o ambiente de execução.
+O piloto verificado abaixo não serve como resultado final nem foi usado para escolher hiperparâmetros. Todas as configurações planejadas da busca são apresentadas, inclusive as de baixo desempenho. Versões, sementes, código, orçamento, duração e status ficam em cada `run.json`; retornos de treino ficam em `monitor.csv` e avaliação por episódio em `evaluation.csv`. Um modelo final de cada algoritmo, sempre da semente 101 fixada antes da comparação, acompanha o repositório em `artifacts/models/`; os demais são artefatos locais regeneráveis. O lock de dependências registra o ambiente de execução.
 
 Na execução paralela, as sementes finais de um algoritmo são agendadas assim que suas 12 tentativas de busca terminam. A seleção de cada algoritmo é independente da dos outros e permanece restrita à validação; candidatos e orçamentos foram fixados antes de observar o teste. São usados no máximo cinco processos finais simultâneos, além dos processos de busca ainda ativos. O protocolo estatístico não depende da ordem de execução.""")
     code("display(collect_runs('pilot').round(4))")
 
-    md("## 4. Resultados\n\n### 4.1 Busca e escolha de configurações\n\nA tabela apresenta as tentativas efetivamente concluídas. Na versão final, cada configuração terá três treinamentos; uma busca incompleta não permite selecionar vencedores.")
+    md("## 4. Resultados\n\n### 4.1 Busca e escolha de configurações\n\nA tabela apresenta todas as tentativas concluídas da busca, com três treinamentos por configuração. A seleção dos vencedores usa a média de validação dessas três sementes.")
     code("""tuning = collect_runs('tuning')
 if tuning.empty:
     print('Busca ainda sem execuções concluídas.')
@@ -261,7 +259,7 @@ Como continuidade, propomos avaliar sensores ruidosos, reservatório captando ch
 
 ## 6. Apresentação e entrega
 
-A apresentação deve durar no máximo três minutos, com todos os integrantes falando, e estar no YouTube. O roteiro em `apresentacao/roteiro.md` prioriza MDP e resultados. A animação gerada é material de apoio e não substitui a apresentação dos integrantes. Preencher nomes, professor, prazo e link antes da entrega. A divulgação em redes sociais é opcional, com link no relatório se realizada.
+A apresentação deve durar no máximo três minutos, com todos os integrantes falando, e estar no YouTube. O roteiro em `apresentacao/roteiro.md` prioriza MDP e resultados. A animação gerada é material de apoio e não substitui a apresentação dos integrantes. O link da apresentação deve constar no relatório. A divulgação em redes sociais é opcional, com link no relatório se realizada.
 
 ## Referências
 
@@ -300,8 +298,8 @@ def main():
     delivery = json.loads((ROOT / "configs/entrega.json").read_text(encoding="utf-8"))
     checklist = f"""# Checklist do trabalho
 
-- [x] Integrantes: {', '.join(delivery['integrantes'])}; validação da dupla considerada atendida por orientação dos integrantes.
-- [x] Validação da proposta e dos algoritmos considerada atendida por orientação dos integrantes.
+- [x] Integrantes: {', '.join(delivery['integrantes'])}.
+- [ ] Aguardar retorno do professor sobre a formação em dupla, o tema e os algoritmos.
 - [x] MDP documentado com estados, ações, transições, recompensa e horizonte.
 - [x] Ambiente próprio implementado no Gymnasium.
 - [x] Renderização rgb_array, human e ansi.
@@ -319,7 +317,6 @@ def main():
 - [ ] Gravar apresentação de até 3 minutos com fala de todos os integrantes.
 - [{'x' if delivery['youtube'] else ' '}] Publicar no YouTube e incluir link no relatório.
 - [{'x' if '[preencher]' not in delivery['professor'] else ' '}] Preencher nome do professor.
-- [{'x' if '[preencher]' not in delivery['prazo'] else ' '}] Confirmar data de entrega e entregar no prazo.
 - [{'x' if delivery['divulgacao'] else ' '}] Opcional: divulgar em rede social e incluir link.
 
 Editar identificação e links em `configs/entrega.json` e executar `python scripts/build_report.py` para atualizar os documentos.

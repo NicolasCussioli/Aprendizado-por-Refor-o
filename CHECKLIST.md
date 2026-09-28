@@ -1,7 +1,7 @@
 # Checklist do trabalho
 
-- [x] Integrantes: Nicolas Cussioli Raimundo, Marcelo Fontana; validação da dupla considerada atendida por orientação dos integrantes.
-- [x] Validação da proposta e dos algoritmos considerada atendida por orientação dos integrantes.
+- [x] Integrantes: Nicolas Cussioli Raimundo, Marcelo Fontana.
+- [ ] Aguardar retorno do professor sobre a formação em dupla, o tema e os algoritmos.
 - [x] MDP documentado com estados, ações, transições, recompensa e horizonte.
 - [x] Ambiente próprio implementado no Gymnasium.
 - [x] Renderização rgb_array, human e ansi.
@@ -18,8 +18,7 @@
 - [x] Roteiro de apresentação preparado.
 - [ ] Gravar apresentação de até 3 minutos com fala de todos os integrantes.
 - [ ] Publicar no YouTube e incluir link no relatório.
-- [ ] Preencher nome do professor.
-- [ ] Confirmar data de entrega e entregar no prazo.
+- [x] Preencher nome do professor.
 - [ ] Opcional: divulgar em rede social e incluir link.
 
 Editar identificação e links em `configs/entrega.json` e executar `python scripts/build_report.py` para atualizar os documentos.
