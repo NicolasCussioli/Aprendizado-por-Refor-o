@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import base64
 import os
 import re
 import subprocess
@@ -32,14 +33,14 @@ def build():
     if delivery["youtube"] and urlparse(delivery["youtube"]).hostname not in {"youtube.com", "www.youtube.com", "m.youtube.com", "youtu.be"}:
         raise ValueError("O enunciado exige que o link da apresentação seja do YouTube.")
     youtube = f"[Apresentação no YouTube]({delivery['youtube']})" if delivery["youtube"] else "[incluir link após gravação com a fala de todos os integrantes]"
-    social = f"[Divulgação]({delivery['divulgacao']})" if delivery["divulgacao"] else "[opcional]"
+    social = f" Divulgação em rede social: [Divulgação]({delivery['divulgacao']})." if delivery["divulgacao"] else ""
     md(f"""# Irrigação inteligente de uma horta comunitária
 
 **Trabalho de Aprendizado por Reforço — notebook e relatório**
 
 Integrantes: {', '.join(delivery['integrantes'])}. Professor: {delivery['professor']}.
 
-**Apresentação no YouTube:** {youtube}. Divulgação em rede social: {social}.
+**Apresentação no YouTube:** {youtube}.{social}
 
 Este relatório contém código executável e dados reais. O treinamento é executado pelo módulo de experimentos, com comando explícito, e as células seguintes carregam seus registros sem repetir os treinamentos.""")
     md("""## 1. Introdução
@@ -198,7 +199,7 @@ Na execução paralela, as sementes finais de um algoritmo são agendadas assim 
 if tuning.empty:
     print('Busca ainda sem execuções concluídas.')
 else:
-    display(tuning.round(4))
+    display(tuning[['algorithm','config_id','training_seed','episode_return','water_used','success']].round(4))
     display(tuning.groupby(['algorithm','config_id']).agg(
         seeds=('training_seed','count'), retorno=('episode_return','mean'),
         desvio=('episode_return','std'), agua=('water_used','mean'),
@@ -244,7 +245,9 @@ display(Image(filename='reports/figures/aprendizado.png'))""")
         md("Nas curvas dos retreinamentos finais, o PPO alcançou retornos altos com menos interações, enquanto o A2C continuou melhorando ao longo de um período maior. A busca e o teste usam orçamentos e sementes diferentes; por isso, suas médias não devem ser tratadas como uma comparação controlada do efeito exclusivo do orçamento. O desempenho final também mostra por que avaliar somente um treino curto poderia subestimar o A2C.")
         md("As curvas exibem retornos coletados durante o treino, incluindo a exploração, e não os retornos determinísticos do teste. A suavização usa 100 episódios; as linhas são médias entre sementes em uma grade comum de interações e as faixas representam um desvio padrão. Dados brutos são mantidos nos arquivos Monitor. Consumir pouca água só é uma vantagem se a saúde também for preservada.")
         md("### 4.3 Execução ilustrativa\n\nPPO, primeira semente de treino (101) e primeira semente de teste (2000) foram definidos para a demonstração. A trajetória não foi escolhida por apresentar o melhor resultado e não substitui as médias. A animação acompanha o repositório, e o MP4 para edição está em `apresentacao/execucao_ppo.mp4`, com cópia local em `videos/`.")
-        code("display(Image(filename='reports/figures/execucao_ppo.gif'))\ndisplay(pd.read_csv('results/demo_trajectory.csv').head(10))")
+        gif = base64.b64encode((ROOT / "reports/figures/execucao_ppo.gif").read_bytes()).decode("ascii")
+        md(f'![Execução ilustrativa da horta](data:image/gif;base64,{gif})')
+        code("display(pd.read_csv('results/demo_trajectory.csv').head(10))")
         md(f"## 5. Conclusões\n\nO ambiente implementado permite relacionar o MDP a uma tarefa de gestão de recursos e comparar três métodos profundos. No protocolo executado, {best.algorithm} apresentou o maior retorno médio entre os algoritmos de RL. O sucesso médio foi de {best.success_mean:.1%}; esse indicador deve ser lido junto à dispersão do retorno, à saúde e ao consumo. A heurística atingiu retorno {heuristic.episode_return_mean:.2f}, oferecendo uma referência de solução por conhecimento das regras. Os resultados descrevem este cenário, sem estabelecer uma classificação geral de algoritmos.")
     else:
         md("**Busca e teste em andamento.** Não há conclusões finais nesta versão; o programa de agregação exige completar todas as sementes antes de gerar o resumo final.")
@@ -256,10 +259,6 @@ O clima e as equações de saúde foram escolhidos para produzir um problema did
 O registro de parâmetros do A2C e os acentos da renderização exigiram correção no piloto. O agendador também precisou configurar threads do PyTorch somente na inicialização de cada processo, preservando os resultados concluídos ao retomar. Essas correções operacionais não alteraram o MDP ou os hiperparâmetros. A separação entre sementes de treino, validação e teste, a preservação de tentativas e a distinção entre episódios e treinamentos foram cuidados essenciais na organização do trabalho. A execução de treinos em paralelo também limita comparações estritas de tempo de CPU. O registro operacional está em `results/operational_notes.md`.
 
 Como continuidade, propomos avaliar sensores ruidosos, reservatório captando chuva, escassez real da fonte de reposição, outras espécies, maior busca de hiperparâmetros e testes estatísticos com mais sementes. Esses itens são extensões, não funcionalidades já implementadas.
-
-## 6. Apresentação e entrega
-
-A apresentação deve durar no máximo três minutos, com todos os integrantes falando, e estar no YouTube. Os slides em `apresentacao/apresentacao_horta.pptx` priorizam o MDP e os resultados. A animação gerada é material de apoio e não substitui a apresentação dos integrantes. O link da apresentação deve constar no relatório. A divulgação em redes sociais é opcional, com link no relatório se realizada.
 
 ## Referências
 

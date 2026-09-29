@@ -37,6 +37,7 @@ Quatro canteiros com necessidades diferentes disputam um reservatório de oito u
 - `tests/test_environment.py`: verificações da API, água, terminalidade e sementes.
 - `results/`: dados reais; o piloto de diagnóstico fica separado.
 - `trabalho_horta.ipynb`: notebook integrado ao relatório.
+- `reports/relatorio_horta.pdf`: versão em PDF do relatório para leitura e envio.
 - `scripts/build_report.py`: atualiza/executa o notebook e exporta HTML.
 - `apresentacao/apresentacao_horta.pptx`: seis slides para a gravação, sem falas nas notas do apresentador.
 - `requirements-lock.txt`: versões usadas (Python 3.12, Windows, PyTorch CPU).
